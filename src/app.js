@@ -38,8 +38,15 @@ app.get("/api/health", (req, res) => {
   res.json({ message: "Server is running!" });
 });
 
+// app.use((err, req, res, next) => {
+//   res.status(500).send({ message: err.message || "Internal Server Error" });
+// });
 app.use((err, req, res, next) => {
-  res.status(500).send({ message: err.message || "Internal Server Error" });
+  console.error(err.stack); // Logs full error details
+  res.status(500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+  });
 });
 
 connectDB()

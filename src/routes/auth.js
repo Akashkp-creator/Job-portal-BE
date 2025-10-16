@@ -111,8 +111,20 @@ authRouter.post("/api/auth/login", async (req, res) => {
     );
 
     // 5. Set token in HTTP-only cookie
+    // res.cookie("token1", token, {
+    //   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+    // });
+
+    // const token = await user.getJWT();
+    const cookieOptions = {
+      httpOnly: true,
+      secure: false, // true only on production with HTTPS
+      sameSite: "lax",
+      path: "/",
+    };
     res.cookie("token", token, {
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+      ...cookieOptions,
+      expires: new Date(Date.now() + 24 * 7 * 3600000), // cookie will be removed after 7 days
     });
 
     // 6. Send success response (without password)
@@ -137,9 +149,13 @@ authRouter.post("/api/auth/login", async (req, res) => {
   }
 });
 
+// authRouter.post("/api/auth/logout", async (req, res) => {
+//   res.cookie("token", null, { expires: new Date(Date.now()) });
+//   res.status(200).json({ message: "logout successful" });
+// });
+
 authRouter.post("/api/auth/logout", async (req, res) => {
   res.cookie("token", null, { expires: new Date(Date.now()) });
-  res.status(200).json({ message: "logout successful" });
+  res.send("logged out successful");
 });
-
 module.exports = { authRouter };
