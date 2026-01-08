@@ -20,6 +20,8 @@ authRouter.post("/api/auth/signup", validateSignup, async (req, res) => {
       skills,
       companyName,
       industry,
+      securityQuestion,
+      securityAnswer,
     } = req.body;
     // console.log(req.body);
 
@@ -29,8 +31,17 @@ authRouter.post("/api/auth/signup", validateSignup, async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
+    if (!securityQuestion || !securityAnswer) {
+      return res
+        .status(400)
+        .json({ message: "Security question and answer are required" });
+    }
+
+    // const hashedPassword = await bcrypt.hash(password, 12);
+
     // 2. Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
+    const hashedSecurityAnswer = await bcrypt.hash(securityAnswer, 12);
 
     // 3. Create new user
     const newUser = new User({
@@ -43,6 +54,8 @@ authRouter.post("/api/auth/signup", validateSignup, async (req, res) => {
       skills,
       companyName,
       industry,
+      securityQuestion,
+      securityAnswerHash: hashedSecurityAnswer,
     });
 
     // 4. Save to DB

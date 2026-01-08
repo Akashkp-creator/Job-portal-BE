@@ -60,6 +60,17 @@ const userSchema = new mongoose.Schema(
       default:
         "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png",
     },
+
+    // ✅ NEW FIELDS
+    securityQuestion: {
+      type: String,
+      required: true,
+      enum: ["pet", "school", "city", "friend"],
+    },
+    securityAnswerHash: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,
@@ -72,7 +83,5 @@ const userSchema = new mongoose.Schema(
 //   this.password = await bcrypt.hash(this.password, 12);
 //   next();
 // });
-
-
 
 module.exports = mongoose.model("User", userSchema);
