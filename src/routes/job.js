@@ -251,6 +251,92 @@ jobRouter.get("/api/applications/my-jobs", auth, async (req, res) => {
   }
 });
 
+// GET JOBS FOR MANAGE-JOBS PAGE (COMPANY ONLY)
+jobRouter.get("/api/jobs/my-jobs", async (req, res) => {
+  try {
+    const { companyId } = req.query;
+
+    if (!companyId) {
+      return res.status(400).json({ message: "companyId is required" });
+    }
+
+    const jobs = await Job.find({ companyId }).sort({ createdAt: -1 });
+    res.status(200).json(jobs);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch jobs" });
+  }
+});
+
+// DELETE JOB
+jobRouter.delete("/api/jobs/:jobId", async (req, res) => {
+  try {
+    const { jobId } = req.params;
+
+    await Job.findByIdAndDelete(jobId);
+
+    res.status(200).json({ message: "Job deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete job" });
+  }
+});
+// GET single job by ID (for Edit Job page)
+jobRouter.get("/api/jobs/:jobId", async (req, res) => {
+  try {
+    const { jobId } = req.params;
+
+    const job = await Job.findById(jobId);
+
+    if (!job) {
+      return res.status(404).json({
+        message: "Job not found",
+      });
+    }
+
+    res.status(200).json(job);
+  } catch (error) {
+    console.error("Get job by id error:", error);
+    res.status(500).json({
+      message: "Failed to fetch job details",
+    });
+  }
+});
+// UPDATE job by ID
+jobRouter.put("/api/jobs/:jobId", async (req, res) => {
+  try {
+    const { jobId } = req.params;
+
+    const updatedJob = await Job.findByIdAndUpdate(
+      jobId,
+      {
+        title: req.body.title,
+        description: req.body.description,
+        location: req.body.location,
+        jobType: req.body.jobType,
+        experienceLevel: req.body.experienceLevel,
+        requiredSkills: req.body.requiredSkills,
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedJob) {
+      return res.status(404).json({
+        message: "Job not found",
+      });
+    }
+
+    res.status(200).json({
+      message: "Job updated successfully",
+      job: updatedJob,
+    });
+  } catch (error) {
+    console.error("Update job error:", error);
+    res.status(500).json({
+      message: "Failed to update job",
+    });
+  }
+});
+
+
 // Review application - accept or reject
 // PUT /api/request/review/:status/:applicationId
 jobRouter.put(
